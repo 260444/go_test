@@ -1,0 +1,49 @@
+连接数据库
+下载依赖
+go get -u github.com/go-sql-driver/mysql
+引入驱动
+_ "github.com/go-sql-driver/mysql"
+
+查询语法
+单行查询
+type user struct {
+	id   int
+	age  int
+	name string
+}
+根据id查询
+sqlStr := "select id, name, age from user where id=?"
+var u user
+db.QueryRow(sqlStr, 1).Scan(&u.id, &u.name, &u.age)
+
+多行查询
+db.QueryRow 会获得两个返回值
+rows和err
+// 非常重要：关闭rows释放持有的数据库链接
+// 循环读取结果集中的数据
+defer rows.Close()
+for rows.Next() {
+		var u user
+		err := rows.Scan(&u.id, &u.name, &u.age)
+}
+
+插入语法
+db.exec(sql语句（"insert into user(name, age) values (?,?)"），传入的值，传入的值2)
+db.exec 会有两个返回值
+ret 还有 err
+ret.LastInsertId() // 查看新插入数据的id
+
+
+更新语法
+修改id为（3）的age为（39）
+db.Exec(“update user set age=? where id = ?”, 39, 3)
+db.exec 会有两个返回值
+ret 还有 err
+ret.RowsAffected() // 查看操作影响的行数
+
+删除语法
+删除id 为 3 的数据
+ret, err := db.Exec("delete from user where id = ?", 3)
+db.exec 会有两个返回值
+ret 还有 err
+ret.RowsAffected() // 查看操作影响的行数
